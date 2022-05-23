@@ -1,0 +1,66 @@
+<!--index-->
+<div class="text-center header">
+    <p><b>ВАШИ РАБОЧИЕ ДОСКИ</b></p>
+</div>
+<div class="margin container">
+    <div class="row">
+        {{#if desks}}
+            {{#each desks}}
+                <div class="col-md-3 col-sm-3">
+                    <form action="/lists" method="GET">
+                        <button type="submit" class="myBtn btn btn-primary btn-lg">
+                            <b>
+                                <input type="hidden" name="reqNameDesk" value="{{name}}">
+                                <input type="hidden" name="reqIdDesk" value="{{_id}}">
+                                    {{name}}
+                            </b>
+                        </button>
+                    </form>
+                </div>
+            {{/each}}
+        {{else}}
+                <p>Have not desk</p>
+        {{/if}}
+
+        <!--button add-->
+        <div class="col-md-3 col-sm-3">
+            <button data-toggle="modal" data-target="#myDesk" type="button" id="myBtnAdd" class="btn btn-secondary btn-lg">Создать доску</button>
+        </div>
+    </div>
+</div>
+
+
+<div style="margin-top: 5rem">
+    <ul>
+        <li>Простое trello на express, c испольнозавнием</li>
+        <li>Fetch для удаление и редактирование карточек</li>
+        <li>Get, post для добавления и удаления досок и списков</li>
+        <li>mongodb для хранения данных пользователя</li>
+        <li>bootstrap для view</li>
+    </ul>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="myDesk" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <form action="/createDesk" method="POST">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Modal Header</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Заголовок доски:</p>
+                    <input type="text" name="desk" class="form-control">
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn">Создать</button>
+                    <button type="button" class="btn" data-dismiss="modal">Отмена</button>
+                </div>
+            <form>
+        </div>
+
+    </div>
+</div>

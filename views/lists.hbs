@@ -1,0 +1,239 @@
+<div style="background: #2881D5; height: 100vh;">
+    <div class="row listHead">
+        <div class="col-md-8 col-sm-6">
+            <div class="paddingTop1rem">
+                <p>
+                    <b>Доска: {{nameDesk}} </b>
+                    <a href="/" class="deleteBtn" style="font-style: normal; color: white; text-decoration: none; padding-left: 5rem;">Вернутся к доскам</a>
+                </p>
+            </div>
+            <input id="idDesk" type="hidden" name="idDesk" value="{{idDesk}}">
+            <input id="nameDesk" type="hidden" name="nameDesk" value="{{nameDesk}}">
+        </div>
+
+        <div class="col-md-2 col-sm-3">
+            <form action="/createList" method="POST">
+                <input type="hidden" name="nameDesk" value="{{nameDesk}}">
+                <input type="hidden" name="idDesk" value="{{idDesk}}">
+                <div class="delete"><button draggable="true" type="submit" class="btn  btn btn-primary btn-lg deleteBtn">Добавить список</button></div>
+            </form>
+        </div>
+
+        <div class="col-md-2 col-sm-3">
+            <form action="/deleteDesk" method="GET">
+                <input type="hidden" name="idDesk" value="{{idDesk}}">
+                <div class="delete"><button draggable="true" type="submit" class=" btn btn-primary btn-lg deleteBtn">Удалить доску</button></div>
+            </form>
+        </div>
+
+    </div>
+    <div class="row listRow">
+        {{#if lists}}
+            {{#each lists}}
+                <div class="cells">
+                    <input type="hidden" name="idList" value="{{_id}}" >
+                    <div class="col-md-2 col-sm-3 listCol" draggable="true"><!--drog  & drop-->
+                            <div class="col-md-8 col-sm-8"><p>Задачи</p></div>
+                            <form action="/deleteList" method="POST">
+                                <input type="hidden" name="idList" value="{{_id}}">
+                                <input type="hidden" name="nameDesk" value="{{nameDesk}}">
+                                <input type="hidden" name="idDesk" value="{{idDesk}}">
+                                <div class="col-md-4 col-sm-4"><button type="submit" class="close" data-dismiss="modal">&times;</button></div>
+                            </form>
+
+                            <!--here edit card-->
+                            {{#each cards}}
+                                <button data-toggle="modal" data-target="#{{_id}}" value="{{_id}}" onclick="getCard(event)"
+                                         type="button" class="cards btn  listBtn">{{nameCard}}</button>
+                            {{/each}}
+
+                        <button data-toggle="collapse"
+                                data-target="#{{_id}}"
+                                 type="button" class="btn listBtnAddDell">Добавить карточку</button>
+
+                        <div id="{{_id}}"
+                                class="collapse">
+                            <form action="/createCard" method="POST"> <!--id occupied !-->
+
+                                <input type="hidden" name="idDesk" value="{{idDesk}}">
+                                <input type="hidden" name="nameDesk" value="{{nameDesk}}">
+                                <input type="hidden" name="idList" value="{{_id}}">
+
+                                <textarea class="form-control" name="nameCard" value=""></textarea>
+                                <button  type="submit" class="btn btnAdd btn-primary">Добавить карточку</button>
+                                <button  type="button" class="btn btnClose" ><i class="glyphicon glyphicon-remove"
+                                data-toggle="collapse" data-target="#{{_id}}"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {{/each}}
+        {{else}}
+            <p>Have not list</p>
+        {{/if}}
+
+    </div>
+</div>
+
+<!-- Modal -->
+{{#if lists}}
+    {{#each lists}}
+            {{#each cards}}
+                <div class="modal fade" id="{{_id}}"
+                     role="dialog">
+                    <div class="modal-dialog">
+
+                        <!-- Modal content-->
+                            <div class="modal-content" >
+                                <form action="" method=""><!-- action="/updateOrDeleteCard" method="POST" -->
+
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">Modal Header</h4>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <p>Карта:</p>
+                                        <input type="hidden" name="idCard" value="{{_id}}">
+                                        <input type="text" class="form-control" name="nameCard" value="{{nameCard}}">
+                                        <p>Описание</p>
+                                        <textarea class="form-control" name="description">{{description}}</textarea>
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button  type="button" class="btn update" onclick="update(event)"
+                                                 name="status" value="update" data-dismiss="modal">Сохранить</button>
+
+                                        <button type="button" class="btn delete"
+                                                name="status" value="delete" onclick="del()" data-dismiss="modal">Удалить</button><!--data-dismiss="modal"-->
+                                    </div>
+
+                                </form>
+                            </div>
+                    </div>
+                </div>
+            {{/each}}
+    {{/each}}
+{{else}}
+    <p>Have not list</p>
+{{/if}}
+
+<script>
+    let button = document.querySelectorAll('.cards');
+    //get data
+    let idDesk = document.getElementById('idDesk').getAttribute("value");
+    let nameDesk = document.getElementById('nameDesk').getAttribute("value");
+
+    let data = {
+        idDesk: idDesk,
+        nameDesk: nameDesk
+    };
+
+    button.forEach.call(button, function(el){
+        el.addEventListener('click', event => {
+            let idCard = event.target.getAttribute("value");
+            data.idCard = idCard;
+            let idList = event.target.parentNode.previousElementSibling.getAttribute("value");
+            data.idList = idList;
+        });
+    });
+
+    let cardEvent;
+    function getCard(event) {
+        cardEvent = event;
+    }
+
+    function del(){
+        data.status = 'delete';
+        request(data).then(function (dataRes) {
+            cardEvent.target.remove();
+            console.log('Request succeeded with JSON response', dataRes);
+        }).catch(function (error) {
+            console.log('Request failed', error);
+        });
+    }
+
+    function update(event){
+        let textarea = event.target.parentNode.previousElementSibling.querySelector("textarea");
+        let input = event.target.parentNode.previousElementSibling.querySelectorAll("input")[1];
+
+        data.textareaValue = textarea.value;
+        data.inputValue = input.value;
+        data.status = 'update';
+        request(data).then(function (dataRes) {
+            cardEvent.target.innerHTML = input.value;
+            console.log('Request succeeded with JSON response', dataRes);
+        }).catch(function (error) {
+            console.log('Request failed', error);
+        });
+    }
+
+    function request(data){
+        return fetch('/updateOrDeleteCard', {
+            method: 'post',
+            headers: {
+                "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+            },
+            body: JSON.stringify(data)
+        })
+    }
+</script>
+<style>
+    .hide {
+        display: none;
+    }
+    .hovered {
+        background-color: #d1d8e2;
+    }
+
+</style>
+<script>
+    /*
+    const dragAndDrop = () => {
+        const list = document.querySelector('.listCol');
+        const cells = document.querySelectorAll('.cells');
+
+        const dragStart = function () {
+            setTimeout(() => {
+                this.classList.add('hide');
+            }, 10)
+        };
+        const dragEnd = function () {
+            this.classList.remove('hide');
+        };
+
+        const dragOver = function (event){
+            event.preventDefault();
+            //console.log('over');
+        };
+
+        const dragEnter = function (event){
+            event.preventDefault();
+            this.classList.add('hovered')
+            //console.log('enter');
+        };
+
+        const dragLeave = function (){
+            console.log('leave');
+        };
+
+        const dragDrop = function (){
+            this.append(list);
+            console.log('drop');
+        };
+
+        cells.forEach((cell) => {
+            cell.addEventListener('dragover', dragOver);
+            cell.addEventListener('dragenter', dragEnter);
+            cell.addEventListener('dragleave', dragLeave);
+            cell.addEventListener('drop', dragDrop);
+
+        });
+
+        list.addEventListener('dragstart', dragStart);
+        list.addEventListener('dragend', dragEnd);
+    };
+
+    dragAndDrop();
+     */
+</script>

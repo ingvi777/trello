@@ -1,0 +1,21 @@
+{
+  "name": "trello",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "scripts": {
+    "start": "node --unhandled-rejections=strict --trace-warnings index",
+    "dev": "nodemon --unhandled-rejections=strict --trace-warnings index"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "5.9.26",
+    "express-handlebars": "^3.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.4"
+  }
+}
